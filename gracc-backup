@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# Copy over the file in the input directory to globus-url-copy URL
+# Verify the checksum (with globus-url-copy in this case)
+# Copy the file into a second directory.
+# After 14 days, cleanup the file from the second directory
+
+if [ $# -ne 3 ]; then
+    echo "Illegal number of arguments" 1>&2
+    exit 1
+fi
+
+input_dir=$1
+second_dir=$2
+output_url=$3
+
+export X509_USER_CERT=/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem
+export X509_USER_KEY=/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem
+
+# For every file in the input dir
+for file in `find $input_dir -type f`
+do
+    echo "$file"
+    # Try to copy the file to the output_url directory with globus_url_copy
+    globus-url-copy file://$file $output_url
+    exit_code=$? 
+    if [ $exit_code -ne "0" ]; then
+        echo "Failed to transfer file $file" 1>&2
+        echo "Going to try to copy back the file, and check checksum" 1>&2
+    fi
+
+    # Now, copy back the file, and checksum it.
+    tmpdir=`mktemp -d`
+    filename=`basename $file`
+    globus-url-copy $output_url/$filename file://$tmpdir/
+    exit_code=$?
+    echo $exit_code
+    if [ $exit_code -ne "0" ]; then
+        echo "Failed to transfer back file $file" 1>&2
+        exit 1
+    fi
+    original=`md5sum $file | awk '{print $1;}'`
+    new=`md5sum $tmpdir/$filename | awk '{print $1;}'`
+    rm -rf $tmpdir
+    if [ "$original" != "$new" ]; then
+        echo "md5sum of transferred file is not the same as the original: $file" 1>&2
+        exit 1
+    fi
+ 
+    # Copy the file now to the secondary file
+    mv $file $second_dir/
+    
+done
+
+
+# Loop through the files in the secondary directory, delete older than 14 days
+find $second_dir -type f -mtime +14 -delete
+
