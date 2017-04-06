@@ -3,7 +3,7 @@
 # Copy over the file in the input directory to globus-url-copy URL
 # Verify the checksum (with globus-url-copy in this case)
 # Copy the file into a second directory.
-# After 14 days, cleanup the file from the second directory
+# After 4 days, cleanup the file from the second directory
 
 if [ $# -ne 3 ]; then
     echo "Illegal number of arguments" 1>&2
@@ -21,6 +21,11 @@ export X509_USER_KEY=/etc/grid-security/backup-cert/gracc.opensciencegrid.org-ke
 for file in `find $input_dir -type f`
 do
     echo "$file"
+    # Check if the file is zero length, if so, ignore it
+    if [ ! -s $file ]; then
+        continue
+    fi
+
     # Try to copy the file to the output_url directory with globus_url_copy
     globus-url-copy file://$file $output_url
     exit_code=$? 
@@ -48,11 +53,19 @@ do
     fi
  
     # Copy the file now to the secondary file
-    mv $file $second_dir/
+    cp $file $second_dir/
+    if [ $? -ne "0" ]; then
+        echo "Copy failed to secondary directory!" 1>&2
+        exit 1
+    fi
+    echo -n > $file
     
 done
 
 
-# Loop through the files in the secondary directory, delete older than 14 days
-find $second_dir -type f -mtime +14 -delete
+# Loop through the files in the secondary directory, delete older than 4 days
+find $second_dir -type f -mtime +4 -delete
+
+# Loop through the files in the original directory, delete zero length files older than 4 days
+find $input_dir -type f -size 0 -mtime +4 -delete
 
