@@ -1,0 +1,16 @@
+[Unit]
+Description=GRACC Periodic Backup
+Documentation=https://opensciencegrid.github.io/gracc
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=gracc
+Group=gracc
+Type=oneshot
+ExecStart=/usr/bin/gracc-backup /var/lib/psarchive/output /var/lib/psarchive/secondary gsiftp://fndca1.fnal.gov/pnfs/fs/usr/fermigrid/gratia/gracc-ps-raw/
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=multi-user.target
+

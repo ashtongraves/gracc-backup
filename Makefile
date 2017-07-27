@@ -15,6 +15,20 @@
 /etc/systemd/system/gracc-backup-transfer.timer: gracc-backup-transfer.timer
 	cp gracc-backup-transfer.timer /etc/systemd/system/gracc-backup-transfer.timer
 
+/etc/systemd/system/gracc-backup-ps.timer: gracc-backup-ps.timer
+	cp gracc-backup-ps.timer /etc/systemd/system/gracc-backup-ps.timer
+
+/etc/systemd/system/gracc-backup-ps.service: gracc-backup-ps.service
+	cp gracc-backup-ps.service /etc/systemd/system/gracc-backup-ps.service
+
+
+/etc/systemd/system/gracc-backup-ps-itb.timer: gracc-backup-ps-itb.timer
+	cp gracc-backup-ps-itb.timer /etc/systemd/system/gracc-backup-ps-itb.timer
+
+/etc/systemd/system/gracc-backup-ps-itb.service: gracc-backup-ps-itb.service
+	cp gracc-backup-ps-itb.service /etc/systemd/system/gracc-backup-ps-itb.service
+
+
 
 /usr/bin/gracc-backup: gracc-backup
 	cp gracc-backup /usr/bin/gracc-backup
