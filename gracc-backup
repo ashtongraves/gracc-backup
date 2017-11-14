@@ -64,7 +64,7 @@ done
 
 
 # Loop through the files in the secondary directory, delete older than 4 days
-find $second_dir -type f -mtime +4 -delete
+find -L $second_dir -type f -mtime +4 -delete
 
 # Loop through the files in the original directory, delete zero length files older than 4 days
 find $input_dir -type f -size 0 -mtime +4 -delete
