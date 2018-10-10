@@ -26,6 +26,13 @@ do
         continue
     fi
 
+    # Check if the file is too small, delete it if necessary
+    filesize=$(stat -c%s "$file")
+    if [[ "$filesize" < 300 ]]; then
+        rm -f $file
+        continue
+    fi
+
     # Try to copy the file to the output_url directory with globus_url_copy
     globus-url-copy file://$file $output_url
     exit_code=$? 
