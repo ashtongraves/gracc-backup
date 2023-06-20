@@ -1,9 +1,0 @@
-[Unit]
-Description=Run GRACC Backup for Raw Records
-
-[Timer]
-OnBootSec=1min
-OnUnitActiveSec=6h
-
-[Install]
-WantedBy=timers.target

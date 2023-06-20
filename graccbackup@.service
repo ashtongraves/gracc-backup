@@ -1,0 +1,18 @@
+[Unit]
+Description=GRACC Periodic Backup
+Documentation=https://opensciencegrid.github.io/gracc
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=gracc
+Group=gracc
+Type=oneshot
+Environment=IN=%i
+PermissionsStartOnly=true
+ExecStartPre=/bin/bash -c "systemctl set-environment DEST=`grep dest /etc/graccarchive/config/gracc-archive-${IN}.toml | grep -v \\# | cut -d\\' -f2`"
+ExecStart=/usr/bin/gracc-backup /var/lib/graccarchive/%i/output /var/lib/graccarchive/%i/secondary ${DEST} 
+TimeoutStopSec=25min
+
+[Install]
+WantedBy=multi-user.target
