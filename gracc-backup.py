@@ -3,6 +3,7 @@ import tomllib
 import os
 import subprocess
 import re
+import time
 
 id = sys.argv[1]
 
@@ -17,18 +18,39 @@ for file in os.listdir(os.fsencode(input_path)):
     file_name = os.fsdecode(file)
     file_full_path = input_path + '/' + file_name
     file_size = os.stat(file_full_path).st_size
-    if file_size == 0 or not file_name.endswith('tar.gz'):
+
+    if not file_name.endswith('tar.gz'):
         pass
+    elif file_size == 0:
+        file_time = os.stat(file_full_path).st_mtime
+        four_days_ago = time.time() - (60 * 60 * 24 * 4)
+        if file_time < four_days_ago:
+            os.remove(file_full_path)
     elif file_size < 300:
         os.remove(file_full_path)
     else:
         os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
         os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
+        
         local_full_path = "file://" + file_full_path
         remote_full_path = output_path + file_name
+        
         print(subprocess.check_output(f'gfal-copy {local_full_path} {remote_full_path}', shell=True))
+        
         unformatted_remote_checksum = subprocess.check_output(f'gfal-sum -v {remote_full_path} MD5', shell=True).decode('utf-8')
         remote_checksum = re.findall('.+ (.+)\\n', unformatted_remote_checksum)[0]
         unformatted_local_checksum = subprocess.check_output(f'gfal-sum -v {file_full_path} MD5', shell=True).decode('utf-8')
         local_checksum = re.findall('.+ (.+)\\n', unformatted_local_checksum)[0]
-        print(remote_checksum == local_checksum)
+        
+        if remote_checksum == local_checksum:
+            os.rename(file_full_path, secondary_path + "/" + file_name)
+            os.mknod(file_full_path)
+
+for file in os.listdir(os.fsencode(secondary_path)):
+    file_name = os.fsdecode(file)
+    file_full_path = input_path + '/' + file_name
+    file_time = os.stat(file_full_path).st_mtime
+    four_days_ago = time.time() - (60 * 60 * 24 * 4)
+    
+    if file_time < four_days_ago:
+        os.remove(file_full_path)
