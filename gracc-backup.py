@@ -39,8 +39,8 @@ for file in os.listdir(os.fsencode(input_path)):
         
         unformatted_remote_checksum = subprocess.check_output(f'gfal-sum -v {remote_full_path} MD5', shell=True).decode('utf-8')
         remote_checksum = re.findall('.+ (.+)\\n', unformatted_remote_checksum)[0]
-        unformatted_local_checksum = subprocess.check_output(f'gfal-sum -v {file_full_path} MD5', shell=True).decode('utf-8')
-        local_checksum = re.findall('.+ (.+)\\n', unformatted_local_checksum)[0]
+        unformatted_local_checksum = subprocess.check_output(f'md5sum {file_full_path}', shell=True).decode('utf-8')
+        local_checksum = re.findall('(.+)  .+', unformatted_local_checksum)[0]
         
         if remote_checksum == local_checksum:
             os.rename(file_full_path, secondary_path + "/" + file_name)
