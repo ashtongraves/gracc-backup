@@ -2,6 +2,7 @@ import sys
 import tomllib
 import os
 import subprocess
+import re
 
 id = sys.argv[1]
 
@@ -26,6 +27,8 @@ for file in os.listdir(os.fsencode(input_path)):
         local_full_path = "file://" + file_full_path
         remote_full_path = output_path + file_name
         print(subprocess.check_output(f'gfal-copy {local_full_path} {remote_full_path}', shell=True))
-        remote_checksum = subprocess.check_output(f'gfal-sum {remote_full_path} MD5', shell=True)
-        local_checksum = subprocess.check_output(f'gfal-sum {file_full_path} MD5', shell=True)
+        unformatted_remote_checksum = subprocess.check_output(f'gfal-sum -v {remote_full_path} MD5', shell=True).decode('utf-8')
+        remote_checksum = re.findall('.+ (.+)\\n', unformatted_remote_checksum)[0]
+        unformatted_local_checksum = subprocess.check_output(f'gfal-sum -v {file_full_path} MD5', shell=True).decode('utf-8')
+        local_checksum = re.findall('.+ (.+)\\n', unformatted_local_checksum)[0]
         print(remote_checksum == local_checksum)
