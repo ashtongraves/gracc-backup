@@ -45,6 +45,8 @@ for file in os.listdir(os.fsencode(input_path)):
         if remote_checksum == local_checksum:
             os.rename(file_full_path, secondary_path + "/" + file_name)
             os.mknod(file_full_path)
+        else:
+            print("Error: Failed checksum comparison")
 
 for file in os.listdir(os.fsencode(secondary_path)):
     file_name = os.fsdecode(file)
