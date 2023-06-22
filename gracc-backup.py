@@ -19,7 +19,7 @@ for file in os.listdir(os.fsencode(input_path)):
     if file_size == 0 or not file_name.endswith('tar.gz'):
         pass
     elif file_size < 300:
-        os.remove(file)
+        os.remove(file_full_path)
     else:
         os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
         os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
