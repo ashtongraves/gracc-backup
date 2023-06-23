@@ -13,7 +13,7 @@ def backup_archive(file_path, file_name):
     with open(toml_path, 'rb') as f:
         toml_text = tomllib.load(f)
         output_path = toml_text['Directories']['dest']      
-    local_full_path = "file://" + file_path + file_name
+    local_full_path = 'file://' + file_path + '/' + file_name
     remote_full_path = output_path + file_name
     os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
     os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
@@ -51,10 +51,10 @@ for file in os.listdir(os.fsencode(input_path)):
         os.remove(file_full_path)
     else:
         if backup_archive(input_path, file_name):
-            os.rename(file_full_path, secondary_path + "/" + file_name)
+            os.rename(file_full_path, secondary_path + '/' + file_name)
             os.mknod(file_full_path)
         else:
-            print("Error: Failed checksum comparison")
+            print('Error: Failed checksum comparison')
 
 # Clean up old secondary archives
 for file in os.listdir(os.fsencode(secondary_path)):
