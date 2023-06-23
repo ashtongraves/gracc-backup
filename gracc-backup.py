@@ -8,20 +8,15 @@ import time
 # Should be either raw, transfer, ps-itb, or ps-prod
 id = sys.argv[1]
 
-# Build file paths used for file transfer
-toml_path = f'/etc/graccarchive/config/gracc-archive-{id}.toml'
-with open(toml_path, 'rb') as f:
-    toml_text = tomllib.load(f)
-    output_path = toml_text['Directories']['dest']
-input_path = f'/var/lib/graccarchive/{id}/output'
-secondary_path = f'/var/lib/graccarchive/{id}/secondary'
-
-
-def backup_archive(file_name):
+def backup_archive(file_path, file_name):
+    toml_path = f'/etc/graccarchive/config/gracc-archive-{id}.toml'
+    with open(toml_path, 'rb') as f:
+        toml_text = tomllib.load(f)
+        output_path = toml_text['Directories']['dest']      
+    local_full_path = "file://" + file_path + file_name
+    remote_full_path = output_path + file_name
     os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
-    os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'        
-    local_full_path = "file://" + input_path + file_name
-    remote_full_path = output_path + file_name    
+    os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
     print(subprocess.check_output(f'gfal-copy {local_full_path} {remote_full_path}', shell=True))
 
     # Verify archive was succesfully copied
@@ -38,7 +33,9 @@ def purge_old_archive(file_path):
     if file_time < four_days_ago:
         os.remove(file_path)
 
-# Search through archives output
+input_path = f'/var/lib/graccarchive/{id}/output'
+secondary_path = f'/var/lib/graccarchive/{id}/secondary'
+# Search through archives output folder
 for file in os.listdir(os.fsencode(input_path)):
     file_name = os.fsdecode(file)
     file_full_path = input_path + '/' + file_name
@@ -62,5 +59,5 @@ for file in os.listdir(os.fsencode(input_path)):
 # Clean up old secondary archives
 for file in os.listdir(os.fsencode(secondary_path)):
     file_name = os.fsdecode(file)
-    file_full_path = input_path + '/' + file_name
+    file_full_path = secondary_path + '/' + file_name
     purge_old_archive(file_full_path)
