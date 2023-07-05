@@ -10,7 +10,7 @@ Group=gracc
 Type=oneshot
 Environment=IN=%i
 PermissionsStartOnly=true
-ExecStart=/bin/docker run gracc-backup %i
+ExecStart=/bin/docker run --mount type=bind,source=/etc,target=/etc gracc-backup --mount type=bind,source=/var/lib/graccarchive,target=/var/lib/graccarchive %i
 TimeoutStopSec=25min
 
 [Install]
