@@ -10,8 +10,7 @@ Group=gracc
 Type=oneshot
 Environment=IN=%i
 PermissionsStartOnly=true
-ExecStartPre=/bin/bash -c "systemctl set-environment DEST=`grep dest /etc/graccarchive/config/gracc-archive-${IN}.toml | grep -v \\# | cut -d\\' -f2`"
-ExecStart=/usr/bin/gracc-backup /var/lib/graccarchive/%i/output /var/lib/graccarchive/%i/secondary ${DEST} 
+ExecStart=/bin/docker run gracc-backup %i
 TimeoutStopSec=25min
 
 [Install]
