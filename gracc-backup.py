@@ -15,8 +15,10 @@ def backup_archive(file_path, file_name):
         output_path = toml_text['Directories']['dest']      
     local_full_path = 'file://' + file_path + '/' + file_name
     remote_full_path = output_path + file_name
-    os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
-    os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
+    if (os.environ.get('X509_USER_CERT') == None):
+        os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
+    if (os.environ.get('X509_USER_KEY') == None):
+        os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
     print(subprocess.check_output(f'gfal-copy {local_full_path} {remote_full_path}', shell=True))
 
     # Verify archive was succesfully copied
