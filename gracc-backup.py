@@ -19,7 +19,7 @@ def backup_archive(file_path, file_name):
         os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
     if (os.environ.get('X509_USER_KEY') == None):
         os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
-    print(subprocess.check_output(f'gfal-copy {local_full_path} {remote_full_path}', shell=True))
+    print(subprocess.check_output(['gfal-copy', {local_full_path}, {remote_full_path}], timeout=600))
 
     # Verify archive was succesfully copied
     unformatted_remote_checksum = subprocess.check_output(f'gfal-sum -v {remote_full_path} MD5', shell=True).decode('utf-8')
