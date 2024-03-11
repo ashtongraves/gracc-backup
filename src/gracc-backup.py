@@ -9,16 +9,16 @@ import time
 id = sys.argv[1]
 
 def backup_archive(file_path, file_name):
-    toml_path = f'/etc/graccarchive/config/gracc-archive-{id}.toml'
+    toml_path = f'/app/config/gracc-archive-{id}.toml'
     with open(toml_path, 'rb') as f:
         toml_text = tomllib.load(f)
         output_path = toml_text['Directories']['dest']      
     local_full_path = 'file://' + file_path + '/' + file_name
     remote_full_path = output_path + file_name
     if (os.environ.get('X509_USER_CERT') == None):
-        os.environ['X509_USER_CERT'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-cert.pem'
+        os.environ['X509_USER_CERT'] = '/hostcert.pem'
     if (os.environ.get('X509_USER_KEY') == None):
-        os.environ['X509_USER_KEY'] = '/etc/grid-security/backup-cert/gracc.opensciencegrid.org-key.pem'
+        os.environ['X509_USER_KEY'] = '/hostkey.pem'
     print(subprocess.check_output(['gfal-copy', local_full_path, remote_full_path], timeout=600))
 
     # Verify archive was succesfully copied
@@ -35,8 +35,8 @@ def purge_old_archive(file_path):
     if file_time < four_days_ago:
         os.remove(file_path)
 
-input_path = f'/var/lib/graccarchive/{id}/output'
-secondary_path = f'/var/lib/graccarchive/{id}/secondary'
+input_path = f'/data/{id}/output'
+secondary_path = f'/data/{id}/secondary'
 # Search through archives output folder
 for file in os.listdir(os.fsencode(input_path)):
     file_name = os.fsdecode(file)
