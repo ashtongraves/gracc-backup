@@ -16,9 +16,9 @@ def backup_archive(file_path, file_name):
     local_full_path = 'file://' + file_path + '/' + file_name
     remote_full_path = output_path + file_name
     if (os.environ.get('X509_USER_CERT') == None):
-        os.environ['X509_USER_CERT'] = '/hostcert.pem'
+        os.environ['X509_USER_CERT'] = '/backup-cert/tls.crt'
     if (os.environ.get('X509_USER_KEY') == None):
-        os.environ['X509_USER_KEY'] = '/hostkey.pem'
+        os.environ['X509_USER_KEY'] = '/backup-cert/tls.key'
     print(subprocess.check_output(['gfal-copy', local_full_path, remote_full_path], timeout=600))
 
     # Verify archive was succesfully copied
