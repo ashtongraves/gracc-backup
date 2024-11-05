@@ -19,7 +19,7 @@ def backup_archive(file_path, file_name):
         os.environ['X509_USER_CERT'] = '/backup-cert/tls.crt'
     if (os.environ.get('X509_USER_KEY') == None):
         os.environ['X509_USER_KEY'] = '/backup-cert/tls.key'
-    print(subprocess.check_output(['gfal-copy', local_full_path, remote_full_path], timeout=600))
+    print(subprocess.check_output(['gfal-copy', "--force", local_full_path, remote_full_path], timeout=600))
 
     # Verify archive was succesfully copied
     unformatted_remote_checksum = subprocess.check_output(f'gfal-sum -v {remote_full_path} MD5', shell=True).decode('utf-8')
